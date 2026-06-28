@@ -1,6 +1,6 @@
 // sw.js — VaultAI Service Worker
 // キャッシュバージョンを変えると古いキャッシュが自動削除されます
-const CACHE_VERSION = 'v1.0.2';
+const CACHE_VERSION = 'v20260628213615';
 const CACHE_NAME = `vaultai-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
