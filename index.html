@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
 <!-- Styles -->
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=1.0.1">
 </head>
 <body>
 <div id="app">
@@ -317,13 +317,13 @@
   <div class="toast" id="toast"></div>
 </div>
 
-<script src="js/app.js"></script>
+<script src="js/app.js?v=1.0.1"></script>
 <script>
   // Service Worker 登録
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', async () => {
       try {
-        const reg = await navigator.serviceWorker.register('./sw.js');
+        const reg = await navigator.serviceWorker.register('sw.js');
         console.log('[PWA] Service Worker 登録成功:', reg.scope);
 
         // 新しいSWが検出されたらページをリロードして最新版を適用
