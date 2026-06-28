@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaultAI - AI資産メモ</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6f5bff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="VaultAI">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<!-- Styles -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== SCREEN: HOME ===== -->
+  <div id="screen-home" class="screen active">
+    <div class="header">
+      <div class="brand-logo">
+        <div class="brand-logo-icon">
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="vaultGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fbe7a1"/>
+                <stop offset="45%" stop-color="#d4af6a"/>
+                <stop offset="100%" stop-color="#9c7a3c"/>
+              </linearGradient>
+            </defs>
+            <circle cx="16" cy="32" r="9" fill="none" stroke="url(#vaultGold)" stroke-width="4.2"/>
+            <rect x="23.5" y="30" width="14" height="4.2" fill="url(#vaultGold)"/>
+            <rect x="30" y="22" width="4.2" height="12" fill="url(#vaultGold)"/>
+            <rect x="34.5" y="22" width="4.2" height="8" fill="url(#vaultGold)"/>
+            <path d="M22 18 L40 8 L58 14 L58 10 L62 10 L62 18 L40 13 Z" fill="url(#vaultGold)"/>
+            <g fill="url(#vaultGold)">
+              <rect x="40" y="38" width="5" height="16" rx="1"/>
+              <rect x="47.5" y="32" width="5" height="22" rx="1"/>
+              <rect x="55" y="24" width="5" height="30" rx="1"/>
+            </g>
+          </svg>
+        </div>
+        <div class="brand-logo-text">
+          <div class="brand-logo-name">VaultAI</div>
+          <div class="brand-logo-tagline">AIとの会話を、あなたの知識資産へ。</div>
+        </div>
+      </div>
+      <button class="icon-btn" id="btn-open-search">🔍</button>
+      <button class="icon-btn" id="btn-open-settings">⚙️</button>
+    </div>
+    <div class="content">
+      <div class="summary-grid">
+        <div class="summary-card"><div class="summary-num" id="sum-total">0</div><div class="summary-label">保存件数</div></div>
+        <div class="summary-card"><div class="summary-num" id="sum-images">0</div><div class="summary-label">画像件数</div></div>
+        <div class="summary-card"><div class="summary-num" id="sum-fav">0</div><div class="summary-label">お気に入り</div></div>
+      </div>
+
+      <div class="section-title">最近追加 <span class="more" data-filter="recent-added">すべて見る</span></div>
+      <div class="carousel" id="carousel-added"></div>
+
+      <div class="section-title">最近編集 <span class="more" data-filter="recent-edited">すべて見る</span></div>
+      <div class="carousel" id="carousel-edited"></div>
+
+      <div class="section-title">タグランキング</div>
+      <div class="carousel" id="carousel-tags"></div>
+
+      <div class="filter-row" id="filter-row" style="margin-top:22px;">
+        <button class="filter-tab active" data-filter="all">すべて</button>
+        <button class="filter-tab" data-filter="favorite">お気に入り</button>
+        <button class="filter-tab" data-filter="chatgpt">ChatGPT</button>
+        <button class="filter-tab" data-filter="claude">Claude</button>
+        <button class="filter-tab" data-filter="gemini">Gemini</button>
+      </div>
+
+      <div id="entry-list"></div>
+    </div>
+    <div class="fab-wrap"><button class="fab" id="btn-fab-add">＋</button></div>
+    <div class="bottom-nav">
+      <button class="nav-item active" data-nav="home"><span class="nav-icon">🏠</span>ホーム</button>
+      <button class="nav-item" data-nav="images"><span class="nav-icon">🖼️</span>画像</button>
+      <button class="nav-item" data-nav="add"><span class="nav-icon">＋</span>保存</button>
+      <button class="nav-item" data-nav="settings"><span class="nav-icon">⚙️</span>設定</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN: SEARCH ===== -->
+  <div id="screen-search" class="screen">
+    <div class="header">
+      <button class="icon-btn" id="btn-search-back">←</button>
+      <div class="header-title">検索</div>
+    </div>
+    <div class="content">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="タイトル・タグ・AI名・本文で検索">
+      </div>
+      <div id="search-results"></div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN: IMAGE LIBRARY ===== -->
+  <div id="screen-images" class="screen">
+    <div class="header">
+      <button class="icon-btn" id="btn-images-back">←</button>
+      <div class="header-title">画像ライブラリ</div>
+    </div>
+    <div class="content">
+      <div class="image-grid" id="image-grid"></div>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN: STEP1 (貼り付け) ===== -->
+  <div id="screen-step1" class="screen">
+    <div class="header">
+      <button class="icon-btn" id="btn-s1-back">←</button>
+      <div>
+        <div class="header-title">回答を貼り付ける</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="progress-dots" style="margin-bottom:18px;">
+        <div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">どのAIで作業しましたか？</div>
+        <div class="ai-select-row" id="ai-select-row">
+          <button class="ai-btn" data-ai="ChatGPT">ChatGPT</button>
+          <button class="ai-btn" data-ai="Claude">Claude</button>
+          <button class="ai-btn" data-ai="Gemini">Gemini</button>
+          <button class="ai-btn" data-ai="その他">その他</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">①このAIMFをコピーしてAIに貼り付けてください</div>
+        <div class="aimf-box" id="aimf-template-box" style="display:none;"></div>
+        <button class="btn-secondary" id="btn-copy-aimf">📋 AIMFをコピーする</button>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">②AIから返ってきた回答をここに貼り付けてください</div>
+        <textarea id="paste-area" rows="8" placeholder="AIの回答をそのまま貼り付けてください"></textarea>
+      </div>
+
+      <div class="warn-box" id="parse-warning">⚠️ AIMF形式が見つかりませんでした。手動で各項目を入力してください。</div>
+
+      <button class="btn-primary" id="btn-analyze">次へ：内容を確認する</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN: STEP2 (確認・編集) ===== -->
+  <div id="screen-step2" class="screen">
+    <div class="header">
+      <button class="icon-btn" id="btn-s2-back">←</button>
+      <div class="header-title">内容を確認</div>
+    </div>
+    <div class="content">
+      <div class="progress-dots" style="margin-bottom:18px;">
+        <div class="progress-dot"></div><div class="progress-dot active"></div><div class="progress-dot"></div>
+      </div>
+
+      <div class="field-group">
+        <div class="field-label">AI名</div>
+        <div class="ai-select-row" id="ai-select-row-step2">
+          <button class="ai-btn" data-ai="ChatGPT">ChatGPT</button>
+          <button class="ai-btn" data-ai="Claude">Claude</button>
+          <button class="ai-btn" data-ai="Gemini">Gemini</button>
+          <button class="ai-btn" data-ai="その他">その他</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">タイトル</div>
+        <input type="text" id="edit-title" placeholder="この資産のタイトル">
+      </div>
+      <div class="field-group">
+        <div class="field-label">質問</div>
+        <textarea id="edit-question" rows="3" placeholder="AIに何を聞きましたか"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">解決策・回答</div>
+        <textarea id="edit-solution" rows="6" placeholder="AIの回答・解決策"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">学び</div>
+        <textarea id="edit-learning" rows="3" placeholder="得られた学び・気づき"></textarea>
+      </div>
+      <div class="field-group">
+        <div class="field-label">タグ</div>
+        <div class="tag-input-row">
+          <input type="text" id="edit-tag-input" placeholder="タグを入力してEnter">
+          <button class="tag-add-btn" id="btn-add-tag">＋</button>
+        </div>
+        <div class="tag-edit-list" id="edit-tag-list"></div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">評価</div>
+        <div class="star-input" id="edit-stars">
+          <button class="star-btn" data-val="1">★</button>
+          <button class="star-btn" data-val="2">★</button>
+          <button class="star-btn" data-val="3">★</button>
+          <button class="star-btn" data-val="4">★</button>
+          <button class="star-btn" data-val="5">★</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field-label">画像（任意）</div>
+        <input type="file" id="image-file-input" accept="image/png,image/jpeg,image/gif,image/webp" multiple style="display:none;">
+        <button class="btn-secondary" id="btn-add-image">🖼️ 画像を追加</button>
+        <div class="image-grid" id="edit-image-grid" style="margin-top:10px;"></div>
+      </div>
+
+      <button class="btn-primary" id="btn-to-step3">次へ：項目を選んで保存する</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN: STEP3 (モード選択・保存) ===== -->
+  <div id="screen-step3" class="screen">
+    <div class="header">
+      <button class="icon-btn" id="btn-s3-back">←</button>
+      <div class="header-title">使う機能を選ぶ</div>
+    </div>
+    <div class="content">
+      <div class="progress-dots" style="margin-bottom:18px;">
+        <div class="progress-dot"></div><div class="progress-dot"></div><div class="progress-dot active"></div>
+      </div>
+      <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+        チェックした項目だけ、詳細画面でワンタップコピーできるようになります。
+      </div>
+      <div class="mode-list" id="mode-list"></div>
+
+      <button class="btn-primary" id="btn-save" style="margin-top:22px;">保存する</button>
+      <button class="btn-secondary" id="btn-cancel" style="margin-top:10px;">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN: DETAIL ===== -->
+  <div id="screen-detail" class="screen">
+    <div class="header">
+      <button class="icon-btn" id="btn-detail-back">←</button>
+      <div class="header-title">詳細</div>
+      <button class="icon-btn" id="btn-detail-fav">☆</button>
+      <button class="icon-btn" id="btn-detail-edit">✎</button>
+    </div>
+    <div class="content" id="detail-content"></div>
+  </div>
+
+  <!-- ===== SCREEN: SETTINGS ===== -->
+  <div id="screen-settings" class="screen">
+    <div class="header">
+      <button class="icon-btn" id="btn-settings-back">←</button>
+      <div class="header-title">設定</div>
+    </div>
+    <div class="content">
+      <div class="settings-row" id="theme-toggle-row">
+        <div><div class="settings-row-label">ダークモード</div><div class="settings-row-desc">画面の配色を切り替えます</div></div>
+        <div class="toggle" id="theme-toggle"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="settings-row" id="btn-export">
+        <div><div class="settings-row-label">データをエクスポート</div><div class="settings-row-desc">JSONファイルとして書き出します</div></div>
+        <span>＞</span>
+      </div>
+      <div class="settings-row" id="btn-import-row">
+        <div><div class="settings-row-label">データをインポート</div><div class="settings-row-desc">JSONファイルから復元します</div></div>
+        <span>＞</span>
+      </div>
+      <input type="file" id="import-file-input" accept="application/json" style="display:none;">
+      <div class="settings-row danger-row" id="btn-clear-all">
+        <div><div class="settings-row-label">すべてのデータを消去</div><div class="settings-row-desc">この操作は取り消せません</div></div>
+        <span>＞</span>
+      </div>
+      <div style="text-align:center; color:var(--text-dim); font-size:11.5px; margin-top:24px;">
+        データは端末内にのみ保存されます。外部サーバーへは送信されません。
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: IMAGE ACTION SHEET ===== -->
+  <div class="modal-overlay" id="sheet-image-action">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-title">この画像をどう使いますか？</div>
+      <button class="btn-secondary" id="btn-img-reproduce" style="margin-bottom:8px;">🖼️ 画像を再現する文章をコピー</button>
+      <button class="btn-secondary" id="btn-img-expand" style="margin-bottom:8px;">🌱 発展させる文章をコピー</button>
+      <button class="btn-secondary" id="btn-img-delegate">🤝 AIへ依頼する文章をコピー</button>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: CONFIRM DELETE ===== -->
+  <div class="modal-overlay center" id="modal-delete">
+    <div class="confirm-dialog">
+      <div class="confirm-title">この資産を削除しますか？</div>
+      <div class="confirm-desc">削除すると元に戻せません。</div>
+      <div class="btn-row">
+        <button class="btn-secondary" id="btn-delete-cancel">キャンセル</button>
+        <button class="btn-primary" id="btn-delete-confirm" style="background:var(--danger);">削除する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL: CONFIRM CLEAR ALL ===== -->
+  <div class="modal-overlay center" id="modal-clear">
+    <div class="confirm-dialog">
+      <div class="confirm-title">すべてのデータを消去しますか？</div>
+      <div class="confirm-desc">保存されているすべての資産と画像が削除されます。この操作は取り消せません。</div>
+      <div class="btn-row">
+        <button class="btn-secondary" id="btn-clear-cancel">キャンセル</button>
+        <button class="btn-primary" id="btn-clear-confirm" style="background:var(--danger);">消去する</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+  // Service Worker 登録
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+      try {
+        const reg = await navigator.serviceWorker.register('./sw.js');
+        console.log('[PWA] Service Worker 登録成功:', reg.scope);
+
+        // 新しいSWが検出されたらページをリロードして最新版を適用
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // 新しいバージョンがインストールされた → 古いキャッシュを破棄してリロード
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                window.location.reload();
+              });
+            }
+          });
+        });
+      } catch (err) {
+        console.warn('[PWA] Service Worker 登録失敗:', err);
+      }
+    });
+  }
+</script>
+</body>
+</html>
