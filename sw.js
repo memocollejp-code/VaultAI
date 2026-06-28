@@ -1,17 +1,17 @@
 // sw.js — VaultAI Service Worker
 // キャッシュバージョンを変えると古いキャッシュが自動削除されます
-const CACHE_VERSION = 'v1.0.0';
+const CACHE_VERSION = 'v1.0.2';
 const CACHE_NAME = `vaultai-${CACHE_VERSION}`;
 
 const PRECACHE_URLS = [
   '',
   'index.html',
-  'css/style.css',
-  'js/app.js',
+  'style.css',
+  'app.js',
   'manifest.json',
-  'icons/icon-192.png',
-  'icons/icon-512.png',
-  'icons/apple-touch-icon.png',
+  'icon-192.png',
+  'icon-512.png',
+  'apple-touch-icon.png',
 ];
 
 // インストール: 必要なファイルをキャッシュに追加
